@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,8 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -34,5 +34,14 @@ class User extends Authenticatable
     public function chirps(): HasMany
     {
         return $this->hasMany(Chirp::class);
+    }
+
+    public function avatarUrl(): string
+    {
+        if ($this->avatar) {
+            return Storage::disk('public')->url($this->avatar);
+        }
+
+        return 'https://avatars.laravel.cloud/'.urlencode($this->email);
     }
 }
