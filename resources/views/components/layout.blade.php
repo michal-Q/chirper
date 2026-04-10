@@ -17,6 +17,11 @@
 </div>
 <div class="navbar-end gap-2">
     @auth
+        <div class="size-8 rounded-full">
+                    <img src="{{ auth()->user() ? auth()->user()->avatarUrl() : 'https://avatars.laravel.cloud/anonymous' }}"
+                         alt="{{ auth()->user() ? auth()->user()->name : 'Anonymous' }}'s avatar"
+                         class="rounded-full" />
+                </div>
         <a href="{{ route('profile') }}" class="btn btn-ghost btn-sm">{{ auth()->user()->name }}</a>
         <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf

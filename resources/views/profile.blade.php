@@ -89,40 +89,67 @@
         </div>
     </div>
 
-    {{-- Modal: Avatar --}}
     <dialog id="modal-avatar" class="modal">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg mb-4">Change profile picture</h3>
-            <form method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data">
-                @csrf
-                @method('PATCH')
-                <div class="flex flex-col items-center gap-4 mb-4">
-                    <div class="avatar">
-                        <div class="size-24 rounded-full ring ring-base-300 ring-offset-base-100 ring-offset-2">
-                            <img id="avatar-preview" src="{{ $user->avatarUrl() }}" alt="{{ $user->name }}" />
-                        </div>
+    <div class="modal-box">
+        <h3 class="font-bold text-lg mb-4">Change profile picture</h3>
+        
+        {{-- Główny formularz: AKTUALIZACJA --}}
+        <form id="form-update-avatar" method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data">
+            @csrf
+            @method('PATCH')
+            
+            <div class="flex flex-col items-center gap-4">
+                <div class="avatar">
+                    <div class="size-24 rounded-full ring ring-base-300 ring-offset-base-100 ring-offset-2">
+                        <img id="avatar-preview" src="{{ $user->avatarUrl() }}" alt="{{ $user->name }}" />
                     </div>
-                    <input type="file"
-                           name="avatar"
-                           accept="image/*"
-                           class="file-input file-input-bordered w-full @error('avatar') file-input-error @enderror"
-                           onchange="previewAvatar(event)" />
-                    @error('avatar')
-                        <div class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </div>
-                    @enderror
-                    <p class="text-xs text-base-content/50">JPG, PNG, GIF, WEBP — maks. 2 MB</p>
                 </div>
-                <div class="modal-action">
-                    <button type="button" class="btn btn-ghost btn-sm"
-                        onclick="document.getElementById('modal-avatar').close()">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                </div>
+                
+                <input type="file"
+                       name="avatar"
+                       accept="image/*"
+                       class="file-input file-input-bordered w-full @error('avatar') file-input-error @enderror"
+                       onchange="previewAvatar(event)" />
+                
+                @error('avatar')
+                    <div class="label">
+                        <span class="label-text-alt text-error">{{ $message }}</span>
+                    </div>
+                @enderror
+                
+                <p class="text-xs text-base-content/50">JPG, PNG, GIF, WEBP — maks. 2 MB</p>
+            </div>
+        </form>
+
+        {{-- Formularz: USUWANIE (osobno!) --}}
+        @if($user->avatar)
+            <form id="form-delete-avatar" method="POST" action="{{ route('profile.avatar.delete') }}">
+                @csrf
+                @method('DELETE')
             </form>
+        @endif
+
+        {{-- Wspólna sekcja przycisków --}}
+        <div class="modal-action flex justify-between items-center mt-6">
+            <div class="flex gap-2">
+                @if($user->avatar)
+                    <button type="submit" form="form-delete-avatar" class="btn btn-error btn-outline btn-sm">
+                        Remove photo
+                    </button>
+                @endif
+            </div>
+            
+            <div class="flex gap-2">
+                <button type="button" class="btn btn-ghost btn-sm" 
+                    onclick="document.getElementById('modal-avatar').close()">Cancel</button>
+                <button type="submit" form="form-update-avatar" class="btn btn-primary btn-sm">Save</button>
+            </div>
         </div>
-        <form method="dialog" class="modal-backdrop"><button>close</button></form>
-    </dialog>
+    </div>
+    
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
 
     {{-- Modal: Name --}}
     <dialog id="modal-name" class="modal">

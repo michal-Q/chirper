@@ -17,6 +17,7 @@ Route::middleware('auth')->group(function() {
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
     Route::patch('/profile/name', [ProfileController::class, 'updateName'])->name('profile.name');
     Route::patch('/profile/email', [ProfileController::class, 'updateEmail'])->name('profile.email');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');

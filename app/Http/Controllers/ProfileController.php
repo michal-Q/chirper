@@ -23,7 +23,7 @@ class ProfileController extends Controller
 
         Auth::user()->update($validated);
 
-        return redirect()->route('profile')->with('success', 'Nazwa użytkownika została zaktualizowana.');
+        return redirect()->route('profile')->with('success', 'Username has been changed.');
     }
 
     public function updateEmail(Request $request): \Illuminate\Http\RedirectResponse
@@ -34,7 +34,7 @@ class ProfileController extends Controller
 
         Auth::user()->update($validated);
 
-        return redirect()->route('profile')->with('success', 'Adres e-mail został zaktualizowany.');
+        return redirect()->route('profile')->with('success', 'Adres e-mail has been changed.');
     }
 
     public function updatePassword(Request $request): \Illuminate\Http\RedirectResponse
@@ -48,7 +48,7 @@ class ProfileController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('profile')->with('success', 'Hasło zostało zmienione.');
+        return redirect()->route('profile')->with('success', 'Password has been changed.');
     }
 
     public function updateAvatar(Request $request): \Illuminate\Http\RedirectResponse
@@ -67,6 +67,19 @@ class ProfileController extends Controller
 
         $user->update(['avatar' => $path]);
 
-        return redirect()->route('profile')->with('success', 'Zdjęcie profilowe zostało zaktualizowane.');
+        return redirect()->route('profile')->with('success', 'Profile picture has been changed.');
+    }
+
+    public function deleteAvatar(): \Illuminate\Http\RedirectResponse
+    {
+
+        $user = Auth::user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+            $user->update(['avatar' => null]);
+        }
+
+        return redirect()->route('profile')->with('success', 'Profile picture has been deleted.');
     }
 }
