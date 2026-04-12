@@ -25,13 +25,37 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    onclick="return confirm('Czy na pewno chcesz usunąć ten chirp?')"
-                                    class="btn btn-ghost btn-xs text-error">Delete</button>
+                                        onclick="return confirm('Do you want to delete this chirp?')"
+                                        class="btn btn-ghost btn-xs text-error">Delete</button>
                             </form>
                         </div>
                     @endif
                 </div>
+
                 <p class="mt-1">{{ $chirp->message }}</p>
+
+                @if ($chirp->image)
+                    <div class="mt-3">
+                        <div class="cursor-pointer" onclick="document.getElementById('image_modal_{{ $chirp->id }}').showModal()">
+                            <img src="{{ Storage::url($chirp->image) }}"
+                                 alt="Chirp image"
+                                 class="aspect-square w-full object-cover rounded-xl shadow-sm border border-base-300 hover:opacity-90 transition" />
+                        </div>
+
+                        <dialog id="image_modal_{{ $chirp->id }}" class="modal">
+                            <div class="modal-box p-0 max-w-none w-auto max-h-[90vh] bg-transparent shadow-none flex items-center justify-center">
+                                <form method="dialog">
+                                    <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-white bg-black/50 hover:bg-black/70 z-50">✕</button>
+                                </form>
+                                <img src="{{ Storage::url($chirp->image) }}"
+                                     class="max-w-[95vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+                            </div>
+                            <form method="dialog" class="modal-backdrop bg-black/90">
+                                <button>close</button>
+                            </form>
+                        </dialog>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
