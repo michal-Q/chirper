@@ -13,8 +13,8 @@ class ChirpController extends Controller
 
     public function index(): \Illuminate\View\View
     {
-        $chirps = Chirp::with('user')
-            ->latest()
+        $chirps = Chirp::with(['user', 'likes'])
+            ->latest('updated_at')
             ->take(50)
             ->get();
 

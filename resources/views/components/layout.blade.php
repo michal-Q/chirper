@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>{{ isset($title) ? $title . ' - Chirper' : 'Chirper' }}</title>
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
@@ -17,11 +18,6 @@
 </div>
 <div class="navbar-end gap-2">
     @auth
-        <div class="size-8 rounded-full">
-                    <img src="{{ auth()->user() ? auth()->user()->avatarUrl() : 'https://avatars.laravel.cloud/anonymous' }}"
-                         alt="{{ auth()->user() ? auth()->user()->name : 'Anonymous' }}'s avatar"
-                         class="rounded-full" />
-                </div>
         <a href="{{ route('profile') }}" class="btn btn-ghost btn-sm">{{ auth()->user()->name }}</a>
         <form method="POST" action="{{ route('logout') }}" class="inline">
             @csrf
@@ -55,5 +51,54 @@
         <p>© 2025 Chirper - Built with Laravel and ❤️</p>
     </div>
 </footer>
+
+<script>
+    async function toggleLike(btn, chirpId) {
+        const svg = btn.querySelector('svg');
+        const counter = btn.querySelector('span');
+        const isLiked = btn.dataset.liked === 'true';
+        const count = parseInt(btn.dataset.count);
+
+        // Optimistic update
+        const newLiked = !isLiked;
+        const newCount = newLiked ? count + 1 : count - 1;
+
+        btn.dataset.liked = newLiked;
+        btn.dataset.count = newCount;
+        counter.textContent = newCount;
+        svg.setAttribute('fill', newLiked ? 'currentColor' : 'none');
+        btn.classList.toggle('text-error', newLiked);
+        btn.classList.toggle('text-base-content/50', !newLiked);
+        
+
+        try {
+            const response = await fetch(`/chirps/${chirpId}/like`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (!response.ok) throw new Error();
+
+            const data = await response.json();
+            btn.dataset.liked = data.liked;
+            btn.dataset.count = data.count;
+            counter.textContent = data.count;
+            svg.setAttribute('fill', data.liked ? 'currentColor' : 'none');
+            btn.classList.toggle('text-error', data.liked);
+            btn.classList.toggle('text-base-content/50', !data.liked);
+        } catch {
+            // Rollback
+            btn.dataset.liked = isLiked;
+            btn.dataset.count = count;
+            counter.textContent = count;
+            svg.setAttribute('fill', isLiked ? 'currentColor' : 'none');
+            btn.classList.toggle('text-error', isLiked);
+            btn.classList.toggle('text-base-content/50', !isLiked);
+        }
+    }
+</script>
 </body>
 </html>

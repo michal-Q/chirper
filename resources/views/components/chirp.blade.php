@@ -1,4 +1,10 @@
 @props(['chirp'])
+
+@php
+    $likeCount = $chirp->likes->count();
+    $isLiked = auth()->check() && $chirp->likes->contains('user_id', auth()->id());
+@endphp
+
 <div class="card bg-base-100 shadow">
     <div class="card-body">
         <div class="flex space-x-3">
@@ -15,7 +21,7 @@
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-semibold">{{ $chirp->user ? $chirp->user->name : 'Anonymous' }}</span>
                         <span class="text-base-content/60">·</span>
-                        <span class="text-sm text-base-content/60">{{ $chirp->created_at->diffForHumans() }}</span>
+                        <span class="text-sm text-base-content/60">{{ $chirp->updated_at->diffForHumans() }}</span>
                     </div>
 
                     @if (auth()->check() && auth()->id() == $chirp->user_id)
@@ -56,6 +62,41 @@
                         </dialog>
                     </div>
                 @endif
+
+                <!-- Like button -->
+                <div class="flex justify-end mt-3">
+                    @auth
+                        <button type="button"
+                                onclick="toggleLike(this, {{ $chirp->id }})"
+                                data-liked="{{ $isLiked ? 'true' : 'false' }}"
+                                data-count="{{ $likeCount }}"
+                                class="flex items-center gap-1.5 cursor-default px-1 py-0.5 rounded text-xs font-medium {{ $isLiked ? 'text-error' : 'text-base-content/50' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="h-4 w-4"
+                                 viewBox="0 0 24 24"
+                                 fill="{{ $isLiked ? 'currentColor' : 'none' }}"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span class="text-xs font-medium">{{ $likeCount }}</span>
+                        </button>
+                    @else
+                        <div class="flex items-center gap-1.5 text-base-content/40 px-2 py-1">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="h-4 w-4"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span class="text-xs font-medium">{{ $likeCount }}</span>
+                        </div>
+                    @endauth
+                </div>
             </div>
         </div>
     </div>
