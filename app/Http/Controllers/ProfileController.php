@@ -82,4 +82,17 @@ class ProfileController extends Controller
 
         return redirect()->route('profile')->with('success', 'Profile picture has been deleted.');
     }
+
+    public function viewProfile(\App\Models\User $user): \Illuminate\View\View
+    {
+        $chirps = $user->chirps()
+            ->with(['user', 'likes'])
+            ->latest('updated_at')
+            ->get();
+
+        return view('viewprofile', [
+            'user' => $user,
+            'chirps' => $chirps
+        ]);
+    }
 }

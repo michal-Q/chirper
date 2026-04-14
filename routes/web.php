@@ -30,3 +30,5 @@ Route::post('/register', Register::class)->middleware('guest');
 Route::view('/login', 'auth.login')->middleware('guest')->name('login');
 Route::post('/login', Login::class)->middleware('guest');
 Route::post('/logout', logout::class)->middleware('auth')->name('logout');
+
+Route::get('/viewprofile/{user:name}', [App\Http\Controllers\ProfileController::class, 'viewProfile'])->name('viewprofile');

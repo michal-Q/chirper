@@ -19,7 +19,7 @@
             <div class="min-w-0 flex-1">
                 <div class="flex justify-between w-full">
                     <div class="flex items-center gap-1">
-                        <span class="text-sm font-semibold">{{ $chirp->user ? $chirp->user->name : 'Anonymous' }}</span>
+                        <a href="{{ route('viewprofile', $chirp->user) }}" class="text-sm font-semibold hover:underline">{{ $chirp->user ? $chirp->user->name : 'Anonymous' }}</a>
                         <span class="text-base-content/60">·</span>
                         <span class="text-sm text-base-content/60">{{ $chirp->updated_at->diffForHumans() }}</span>
                     </div>
