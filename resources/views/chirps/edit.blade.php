@@ -39,7 +39,7 @@
                                 <button type="button"
                                         onclick="removeEditImage()"
                                         class="btn btn-circle btn-xs btn-error absolute -top-2 -right-2 shadow opacity-0 group-hover:opacity-100 transition-opacity"
-                                        title="Usuń zdjęcie">
+                                        title="Delete image">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
