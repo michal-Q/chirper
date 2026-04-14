@@ -29,7 +29,7 @@
                     <div class="mt-4">
                         {{-- Existing image --}}
                         <div id="existing-image-wrapper" @if(!$chirp->image) class="hidden" @endif>
-                            <p class="text-sm text-base-content/60 mb-2">Obecne zdjęcie</p>
+                            <p class="text-sm text-base-content/60 mb-2">Current image</p>
                             <div class="relative inline-block group">
                                 <div class="size-24 rounded-lg overflow-hidden ring ring-base-300 ring-offset-2 shadow">
                                     <img id="edit-image-preview"
