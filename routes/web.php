@@ -5,7 +5,7 @@ use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\Register;
-use App\Http\Controllers\Auth\logout;
+use App\Http\Controllers\Auth\Logout;
 use App\Http\Controllers\Auth\Login;
 
 Route::get('/', [ChirpController::class, 'index']);
@@ -29,6 +29,6 @@ Route::view('/register', 'auth.register')->middleware('guest')->name('register')
 Route::post('/register', Register::class)->middleware('guest');
 Route::view('/login', 'auth.login')->middleware('guest')->name('login');
 Route::post('/login', Login::class)->middleware('guest');
-Route::post('/logout', logout::class)->middleware('auth')->name('logout');
+Route::post('/logout', Logout::class)->middleware('auth')->name('logout');
 
 Route::get('/viewprofile/{user:name}', [App\Http\Controllers\ProfileController::class, 'viewProfile'])->name('viewprofile');
