@@ -2,18 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Chirp;
+use App\Services\ChirpService;
+use App\Http\Requests\StoreChirpRequest;
+use App\Http\Requests\UpdateChirpRequest;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ChirpController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(): \Illuminate\View\View
+    public function __construct(
+        private ChirpService $chirpService
+    ) {}
+
+    public function index(): View
     {
-        $chirps = Chirp::with(['user', 'likes'])
+        // Rozwiązanie problemu N+1: ładowanie relacji 'user' oraz agresywne pobieranie licznika relacji 'likes'
+        $chirps = Chirp::with('user')
+            ->withCount('likes')
             ->latest('updated_at')
             ->take(50)
             ->get();
@@ -21,74 +30,32 @@ class ChirpController extends Controller
         return view('home', ['chirps' => $chirps]);
     }
 
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(StoreChirpRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'message' => 'required|string|max:255',
-            'image'   => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096',
-        ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('chirp-images', 'public');
-        }
-
-        auth()->user()->chirps()->create([
-            'message' => $validated['message'],
-            'image'   => $imagePath,
-        ]);
+        $this->chirpService->createChirp($request->validated(), $request->user());
 
         return redirect('/')->with('success', 'Your chirp has been posted!');
     }
 
-    public function edit(Chirp $chirp): \Illuminate\View\View
+    public function edit(Chirp $chirp): View
     {
         $this->authorize('update', $chirp);
 
         return view('chirps.edit', compact('chirp'));
     }
 
-    public function update(Request $request, Chirp $chirp): \Illuminate\Http\RedirectResponse
+    public function update(UpdateChirpRequest $request, Chirp $chirp): RedirectResponse
     {
-        $this->authorize('update', $chirp);
-
-        $validated = $request->validate([
-            'message'      => 'required|string|max:255',
-            'image'        => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096',
-            'remove_image' => 'nullable|boolean',
-        ]);
-
-        $imagePath = $chirp->image;
-
-        if ($request->boolean('remove_image')) {
-            if ($chirp->image) {
-                Storage::disk('public')->delete($chirp->image);
-            }
-            $imagePath = null;
-        } elseif ($request->hasFile('image')) {
-            if ($chirp->image) {
-                Storage::disk('public')->delete($chirp->image);
-            }
-            $imagePath = $request->file('image')->store('chirp-images', 'public');
-        }
-
-        $chirp->update([
-            'message' => $validated['message'],
-            'image'   => $imagePath,
-        ]);
+        $this->chirpService->updateChirp($chirp, $request->validated());
 
         return redirect('/')->with('success', 'Chirp updated!');
     }
 
-    public function destroy(Chirp $chirp): \Illuminate\Http\RedirectResponse
+    public function destroy(Chirp $chirp): RedirectResponse
     {
         $this->authorize('delete', $chirp);
 
-        if ($chirp->image) {
-            Storage::disk('public')->delete($chirp->image);
-        }
-
-        $chirp->delete();
+        $this->chirpService->deleteChirp($chirp);
 
         return redirect('/')->with('success', 'Chirp deleted!');
     }
