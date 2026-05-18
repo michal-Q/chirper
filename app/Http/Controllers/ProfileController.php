@@ -6,7 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\UpdateProfileNameRequest;
+use App\Http\Requests\UpdateProfileEmailRequest;
+use App\Http\Requests\UpdateProfilePasswordRequest;
+use App\Http\Requests\UpdateProfileAvatarRequest;
 
 class ProfileController extends Controller
 {
@@ -15,49 +19,34 @@ class ProfileController extends Controller
         return view('profile', ['user' => Auth::user()]);
     }
 
-    public function updateName(Request $request): \Illuminate\Http\RedirectResponse
+    public function updateName(UpdateProfileNameRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        Auth::user()->update($validated);
+        $request->user()->update($request->validated());
 
         return redirect()->route('profile')->with('success', 'Username has been changed.');
     }
 
-    public function updateEmail(Request $request): \Illuminate\Http\RedirectResponse
+    public function updateEmail(UpdateProfileEmailRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'email' => 'required|string|email|max:255|unique:users,email,'.Auth::id(),
-        ]);
-
-        Auth::user()->update($validated);
+        $request->user()->update($request->validated());
 
         return redirect()->route('profile')->with('success', 'Adres e-mail has been changed.');
     }
 
-    public function updatePassword(Request $request): \Illuminate\Http\RedirectResponse
+    public function updatePassword(UpdateProfilePasswordRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'current_password' => 'required|current_password',
-            'password' => ['required', 'confirmed', Password::min(5)],
-        ]);
+        $validated = $request->validated();
 
-        Auth::user()->update([
+        $request->user()->update([
             'password' => Hash::make($validated['password']),
         ]);
 
         return redirect()->route('profile')->with('success', 'Password has been changed.');
     }
 
-    public function updateAvatar(Request $request): \Illuminate\Http\RedirectResponse
+    public function updateAvatar(UpdateProfileAvatarRequest $request): RedirectResponse
     {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
-        ]);
-
-        $user = Auth::user();
+        $user = $request->user();
 
         if ($user->avatar) {
             Storage::disk('public')->delete($user->avatar);
@@ -70,9 +59,8 @@ class ProfileController extends Controller
         return redirect()->route('profile')->with('success', 'Profile picture has been changed.');
     }
 
-    public function deleteAvatar(): \Illuminate\Http\RedirectResponse
+    public function deleteAvatar(): RedirectResponse
     {
-
         $user = Auth::user();
 
         if ($user->avatar) {
