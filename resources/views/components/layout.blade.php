@@ -83,12 +83,12 @@
             if (!response.ok) throw new Error();
 
             const data = await response.json();
-            btn.dataset.liked = data.liked;
-            btn.dataset.count = data.count;
-            counter.textContent = data.count;
-            svg.setAttribute('fill', data.liked ? 'currentColor' : 'none');
-            btn.classList.toggle('text-error', data.liked);
-            btn.classList.toggle('text-base-content/50', !data.liked);
+            btn.dataset.liked = data.meta.liked;
+            btn.dataset.count = data.meta.count;
+            counter.textContent = data.meta.count;
+            svg.setAttribute('fill', data.meta.liked ? 'currentColor' : 'none');
+            btn.classList.toggle('text-error', data.meta.liked);
+            btn.classList.toggle('text-base-content/50', !data.meta.liked);
         } catch {
             // Rollback
             btn.dataset.liked = isLiked;

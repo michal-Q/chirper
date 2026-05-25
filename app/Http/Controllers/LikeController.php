@@ -3,18 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chirp;
-use App\Models\Like; // 1. Dodany brakujący import modelu Like
+use App\Models\Like;
 use App\Http\Resources\ChirpResource;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class LikeController extends Controller
 {
     use AuthorizesRequests;
 
-    public function toggle(Chirp $chirp): JsonResponse
+    // Zwracaj bezpośrednio zasób (ChirpResource), a nie surowy JsonResponse
+    public function toggle(Chirp $chirp): ChirpResource
     {
-        // Sprawdzenie uprawnień przez LikePolicy
         $this->authorize('toggle', [Like::class, $chirp]);
 
         $user = auth()->user();
@@ -28,13 +27,14 @@ class LikeController extends Controller
             $liked = true;
         }
 
-        // Ładujemy licznik do zoptymalizowanego odczytu
         $chirp->loadCount('likes');
 
-        return response()->json([
-            'liked' => $liked,
-            'count' => $chirp->likes_count, // 2. Przywrócony klucz 'count', którego szuka front-end
-            'chirp' => new ChirpResource($chirp),
+        // Prawidłowe użycie Resource z obiektem Meta
+        return (new ChirpResource($chirp))->additional([
+            'meta' => [
+                'liked' => $liked,
+                'count' => $chirp->likes_count,
+            ]
         ]);
     }
 }
